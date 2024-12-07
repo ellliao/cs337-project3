@@ -204,7 +204,7 @@ def handle_transformation(recipe: Recipe, trans: Transformation):
         transformed.title = ' '.join([str(trans), transformed.title])
         print(transformed)
 
-        fname = transformed.title.lower().replace(' ', '_')
+        fname = re.sub(r'\W', '_', transformed.title.lower())
         with open(f'{fname}.txt', 'w', encoding='utf-8') as file:
             print(f'Transformation: {trans}', file=file)
             print('\n---------------------', file=file)
