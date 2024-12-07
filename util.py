@@ -97,6 +97,20 @@ class VerbType(Enum):
                     return VerbType.PRIMARY_METHOD
         return VerbType.UNKNOWN
 
+class Transformation(Enum):
+    '''Enum of transformations'''
+    UNKNOWN = auto()
+    TO_VEGETARIAN = auto()
+    FROM_VEGETARIAN = auto()
+
+    def __str__(self):
+        match self:
+            case Transformation.TO_VEGETARIAN:
+                return "Vegetarian"
+            case Transformation.FROM_VEGETARIAN:
+                return "Non-Vegetarian"
+        return None
+
 #############
 # FUNCTIONS #
 #############

@@ -1,9 +1,10 @@
+from copy import copy
 import urllib.request
 import re
 import json
 
 from recipe import Ingredient, Recipe, Step
-from util import nlp, RecipeSource, VerbType
+from util import nlp, RecipeSource, VerbType, Transformation
 
 # Global Recipe object to store parsed recipe information
 recipe = Recipe()
@@ -166,8 +167,17 @@ def update_cooking_methods():
     return None
 
     
-def to_from_vegetarian(recipe, to_vegetarian=True):
-    substitutions = VEGETARIAN_SUBSTITUTIONS if to_vegetarian else NON_VEGETARIAN_SUBSTITUTIONS
+def handle_transformation(recipe: Recipe, trans: Transformation):
+    '''Performs a transformation on a recipe, displays it, and saves it.'''
+
+    def get_substitutions(trans: Transformation) -> dict[str, str]:
+        match trans:
+            case Transformation.TO_VEGETARIAN:
+                return VEGETARIAN_SUBSTITUTIONS
+            case Transformation.FROM_VEGETARIAN:
+                return NON_VEGETARIAN_SUBSTITUTIONS
+
+    substitutions = get_substitutions(trans)
     sorted_substitutions = dict(sorted(substitutions.items(), key=lambda x: len(x[0]), reverse=True))
 
     def clean_verbs(text):
@@ -188,58 +198,43 @@ def to_from_vegetarian(recipe, to_vegetarian=True):
         new_text = re.sub(r'\s+', ' ', new_text).strip()
         return new_text
 
+    def display_transformed(transformed: Recipe, trans: Transformation):
+        '''Displays and saves a transformed recipe.'''
+        
+        transformed.title = ' '.join([str(trans), transformed.title])
+        print(transformed)
+
+        fname = transformed.title.lower().replace(' ', '_')
+        with open(f'{fname}.txt', 'w', encoding='utf-8') as file:
+            print(f'Transformation: {trans}', file=file)
+            print('\n---------------------', file=file)
+            print(recipe, file=file)
+            print('\n---------------------', file=file)
+            print(transformed, file=file)
+        
+        print(f'\nRecipe saved to {fname}.txt!')
+
     transformed_ingredients = []
     for ingredient in recipe.ingredients:
-        if ingredient and ingredient.name:  
-            transformed_name = substitute_text(ingredient.name)
-            transformed_ingredients.append(Ingredient(
-                name=transformed_name,
-                quantity=ingredient.quantity,
-                unit=ingredient.unit
-            ))
+        if ingredient and ingredient.name:
+            transformed_ingredient = copy(ingredient)
+            transformed_ingredient.name = substitute_text(ingredient.name)
+            transformed_ingredients.append(transformed_ingredient)
 
     transformed_steps = []
     for step in recipe.steps:
-        transformed_text = substitute_text(step.text)
-        transformed_step = Step(
-            text=transformed_text
-        )
-        transformed_step.ingredients = step.ingredients
-        transformed_step.tools = step.tools
-        transformed_step.methods = step.methods
-        transformed_step.times = step.times
-        transformed_step.temps = step.temps
+        transformed_step = copy(step)
+        transformed_step.text = substitute_text(step.text)
         transformed_steps.append(transformed_step)
 
-    transformed_recipe = Recipe()
-    transformed_recipe.title = recipe.title
+    transformed_recipe = copy(recipe)
     transformed_recipe.ingredients = transformed_ingredients
     transformed_recipe.steps = transformed_steps
-    transformed_recipe.tools = recipe.tools
-    transformed_recipe.methods = recipe.methods
-    transformed_recipe.other = recipe.other
 
-    return transformed_recipe
+    display_transformed(transformed_recipe, trans)
 
 # https://www.allrecipes.com/recipe/12728/paella-i/
 # https://www.allrecipes.com/recipe/72508/the-best-vegetarian-chili-in-the-world/
-
-
-def display_transformed(transformed: Recipe, transformation: str):
-    '''Displays and saves a transformed recipe.'''
-    
-    transformed.title = ' '.join([transformation, transformed.title])
-    print(transformed)
-
-    fname = transformed.title.lower().replace(' ', '_')
-    with open(f'{fname}.txt', 'w', encoding='utf-8') as file:
-        print(f'Transformation: {transformation}', file=file)
-        print('\n---------------------', file=file)
-        print(recipe, file=file)
-        print('\n---------------------', file=file)
-        print(transformed, file=file)
-    
-    print(f'\nRecipe saved to {fname}.txt!')
 
 
 # Example usage
@@ -267,13 +262,11 @@ def main():
 
             if choice == "1":
                 print("\nTransforming to Vegetarian...")
-                vegetarian_recipe = to_from_vegetarian(recipe, to_vegetarian=True)
-                display_transformed(vegetarian_recipe, "Vegetarian")
+                handle_transformation(recipe, Transformation.TO_VEGETARIAN)
 
             elif choice == "2":
                 print("\nTransforming to Non-Vegetarian...")
-                non_vegetarian_recipe = to_from_vegetarian(recipe, to_vegetarian=False)
-                display_transformed(non_vegetarian_recipe, "Non-Vegetarian")
+                handle_transformation(recipe, Transformation.FROM_VEGETARIAN)
 
             elif choice == "3":
                 print("Exiting the transformation menu")
