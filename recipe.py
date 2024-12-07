@@ -22,9 +22,13 @@ class Ingredient:
         '''Unit of the ingredient, e.g. tsp'''
 
     def __str__(self):
-        return ' '.join([
+        return ''.join([
             fraction_to_str(self.quantity) if self.quantity else '',
-            self.unit if self.unit else '', self.name])
+            ' ' if self.quantity else '',
+            self.unit if self.unit else '',
+            ' ' if self.unit else '',
+            self.name
+        ])
     
     @classmethod
     def from_str(cls, name: str):

@@ -10,9 +10,10 @@ recipe = Recipe()
 
 # Common cooking tools to identify in recipe steps
 COMMON_TOOLS = [
-    "pan", "skillet", "grater", "whisk", "knife", "spatula", "bowl", 
-    "oven", "mixer", "peeler", "measuring cup", "blender", "microwave", 
-    "cutting board", "tongs", "pressure cooker", "baking sheet"
+    "pan", "saucepan", "skillet", "grater", "whisk", "knife", "spatula",
+    "bowl", "oven", "mixer", "peeler", "measuring cup", "blender", "microwave", 
+    "cutting board", "tongs", "pressure cooker", "baking sheet", "baking dish",
+    "baking tray", "pot", "wok"
 ]
 
 def fetch_url(url):
