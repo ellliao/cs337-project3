@@ -20,6 +20,8 @@ class Ingredient:
         '''Quantity of the ingredient, e.g. 1/2'''
         self.unit = unit
         '''Unit of the ingredient, e.g. tsp'''
+        self.used: list[int] = []
+        '''List of steps in which this ingredient is used'''
 
     def __str__(self):
         return ''.join([
@@ -77,14 +79,11 @@ class Ingredient:
 class Step:
     '''Struct holding step information'''
 
-    def __init__(self, text: str, remaining: list[Ingredient] = None):
+    def __init__(self, text: str):
         self.text: str = text
         '''Text associated with the step'''
         self.ingredients: list[Ingredient] = []
         '''List of ingredients used in this step'''
-        self.remaining: list[Ingredient] = \
-            deepcopy(remaining) if remaining else []
-        '''Remaining unused ingredients at this step'''
         self.tools: set[str] = set()
         '''Tools mentioned in this step'''
         self.methods: set[str] = set()
@@ -110,3 +109,14 @@ class Recipe:
         '''List of recipe steps'''
         self.other: dict[str, str] = {}
         '''Other miscellaneous recipe information'''
+
+    def __str__(self):
+        recipe = []
+        recipe.append(f'\n{self.title}')
+        recipe.append(f'\nIngredients:')
+        for ingredient in self.ingredients:
+            recipe.append(f'- {ingredient}')
+        recipe.append(f'\nSteps:')
+        for i, step in enumerate(self.steps, 1):
+            recipe.append(f'{i}. {step.text}')
+        return f'\n'.join(recipe)

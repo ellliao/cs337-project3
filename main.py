@@ -202,8 +202,7 @@ def to_from_vegetarian(recipe, to_vegetarian=True):
     for step in recipe.steps:
         transformed_text = substitute_text(step.text)
         transformed_step = Step(
-            text=transformed_text,
-            remaining=step.remaining
+            text=transformed_text
         )
         transformed_step.ingredients = step.ingredients
         transformed_step.tools = step.tools
@@ -226,19 +225,26 @@ def to_from_vegetarian(recipe, to_vegetarian=True):
 # https://www.allrecipes.com/recipe/72508/the-best-vegetarian-chili-in-the-world/
 
 
+def display_transformed(transformed: Recipe, transformation: str):
+    '''Displays and saves a transformed recipe.'''
+    
+    transformed.title = ' '.join([transformation, transformed.title])
+    print(transformed, ''.join([transformation, ' ']))
+
+    fname = transformed.title.lower().replace(' ', '_')
+    with open(f'{fname}.txt', 'w', encoding='utf-8') as file:
+        print(f'Transformation: {transformation}', file=file)
+        print(recipe, file=file)
+        print(transformed, file=file)
+
+
 # Example usage
 def main():
     url = input("Enter recipe URL: ")
     html = fetch_url(url)
     if html and parse_recipe(html):
         print("Recipe parsed successfully!")
-        print(f"Title: {recipe.title}")
-        print("\nIngredients:")
-        for ingredient in recipe.ingredients:
-            print(f"- {ingredient}")
-        print("\nSteps:")
-        for i, step in enumerate(recipe.steps, 1):
-            print(f"{i}. {step.text}")
+        print(recipe)
 
         # The following are metadata that should not be shown to the user
         print("\nTools:")
@@ -258,22 +264,12 @@ def main():
             if choice == "1":
                 print("\nTransforming to Vegetarian...")
                 vegetarian_recipe = to_from_vegetarian(recipe, to_vegetarian=True)
-                print("\nVegetarian Ingredients:")
-                for ingredient in vegetarian_recipe.ingredients:
-                    print(f"- {ingredient}")
-                print("\nVegetarian Steps:")
-                for i, step in enumerate(vegetarian_recipe.steps, 1):
-                    print(f"{i}. {step.text}")
+                display_transformed(vegetarian_recipe, "Vegetarian")
 
             elif choice == "2":
                 print("\nTransforming to Non-Vegetarian...")
                 non_vegetarian_recipe = to_from_vegetarian(recipe, to_vegetarian=False)
-                print("\nNon-Vegetarian Ingredients:")
-                for ingredient in non_vegetarian_recipe.ingredients:
-                    print(f"- {ingredient}")
-                print("\nNon-Vegetarian Steps:")
-                for i, step in enumerate(non_vegetarian_recipe.steps, 1):
-                    print(f"{i}. {step.text}")
+                display_transformed(non_vegetarian_recipe, "Non-Vegetarian")
 
             elif choice == "3":
                 print("Exiting the transformation menu")
