@@ -67,7 +67,8 @@ class NounType(Enum):
                     ntypes.add(NounType.TOOL)
                 elif wn.synset('measure.n.02') in ss or \
                     wn.synset('container.n.01') in ss or \
-                    wn.synset('clove.n.03') in ss:
+                    wn.synset('clove.n.03') in ss or \
+                    wn.synset('branchlet.n.01') in ss:
                     ntypes.add(NounType.MEASURE)
                 elif wn.synset('food.n.01') in ss or \
                     wn.synset('food.n.02') in ss or \
