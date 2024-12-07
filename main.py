@@ -236,6 +236,8 @@ def display_transformed(transformed: Recipe, transformation: str):
         print(f'Transformation: {transformation}', file=file)
         print(recipe, file=file)
         print(transformed, file=file)
+    
+    print(f'\nRecipe saved to {fname}!')
 
 
 # Example usage
