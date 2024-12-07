@@ -1,5 +1,11 @@
-# Ignore pycache files
+# Mac environment
+.DS_Store
+
+# Pycache files
 __pycache__/*
 
-# Ignore virtual environment files
+# TXT files
+*.txt
+
+# Virtual environment files
 .venv/*
