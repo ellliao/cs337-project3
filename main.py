@@ -245,30 +245,27 @@ def main():
         print("Recipe parsed successfully!")
         print(recipe)
 
-        # The following are metadata that should not be shown to the user
-        print("\nTools:")
-        print(recipe.tools)
-        print("\nMethods:")
-        print(recipe.methods)
-
-
         while True:
             print("\nWhat would you like to do?")
-            print("1. Transform to Vegetarian")
-            print("2. Transform to Non-Vegetarian")
-            print("3. Exit")
+            i = 1
+            for trans in Transformation:
+                print(f"{i}. Transform to {trans}")
+                i += 1
+            print(f"{i}. Exit")
             
             choice = input("Enter your choice: ")
 
-            if choice == "1":
-                print("\nTransforming to Vegetarian...")
-                handle_transformation(recipe, Transformation.TO_VEGETARIAN)
+            try:
+                choice = int(choice)
+            except:
+                choice
 
-            elif choice == "2":
-                print("\nTransforming to Non-Vegetarian...")
-                handle_transformation(recipe, Transformation.FROM_VEGETARIAN)
+            if choice in [t.value for t in Transformation]:
+                trans = Transformation(choice)
+                print(f"\nTransforming to {trans}...")
+                handle_transformation(recipe, trans)
 
-            elif choice == "3":
+            elif choice == len(Transformation) + 1:
                 print("Exiting the transformation menu")
                 break
 

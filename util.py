@@ -72,7 +72,8 @@ class NounType(Enum):
                     ntypes.add(NounType.MEASURE)
                 elif wn.synset('food.n.01') in ss or \
                     wn.synset('food.n.02') in ss or \
-                    wn.synset('leaven.n.01') in ss:
+                    wn.synset('leaven.n.01') in ss or \
+                    wn.synset('plant_organ.n.01') in ss:
                     ntypes.add(NounType.FOOD)
                 elif wn.synset('temperature.n.01') in ss or \
                     wn.synset('fire.n.03') in ss or \
@@ -99,7 +100,6 @@ class VerbType(Enum):
 
 class Transformation(Enum):
     '''Enum of transformations'''
-    UNKNOWN = auto()
     TO_VEGETARIAN = auto()
     FROM_VEGETARIAN = auto()
 
