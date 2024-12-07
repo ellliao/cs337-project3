@@ -1,16 +1,12 @@
 import urllib.request
 import re
 import json
-import spacy
 
-# Global recipe dictionary to store parsed recipe information
-recipe = {
-    "title": "",
-    "description": "",
-    "ingredients": [],
-    "steps": [],
-    "methods": [],
-}
+from recipe import Ingredient, Recipe, Step
+from util import nlp, RecipeSource, VerbType
+
+# Global Recipe object to store parsed recipe information
+recipe = Recipe()
 
 # Common cooking tools to identify in recipe steps
 COMMON_TOOLS = [
@@ -18,9 +14,6 @@ COMMON_TOOLS = [
     "oven", "mixer", "peeler", "measuring cup", "blender", "microwave", 
     "cutting board", "tongs", "pressure cooker", "baking sheet"
 ]
-
-# Load spaCy NLP model
-nlp = spacy.load("en_core_web_sm")
 
 def fetch_url(url):
     """
@@ -35,6 +28,11 @@ def fetch_url(url):
     try:
         # Remove any trailing characters from Slack
         url = url.strip(">")
+
+        # Check that this is an Allrecipes URL
+        if RecipeSource.from_url(url) == RecipeSource.UNKNOWN:
+            print(f"Error fetching URL: {url} is from an unsupported site.")
+            return ""
         
         # Open and read the URL
         response = urllib.request.urlopen(url)
@@ -77,27 +75,26 @@ def parse_recipe(html):
         if isinstance(jsondata, list):
             jsondata = jsondata[0] if jsondata else {}
         
-        # Populate recipe dictionary
-        recipe["title"] = title.group(1) if title else "Unknown Title"
+        # Populate recipe
+        recipe.title = title.group(1) if title else "Unknown Title"
         
         # Extract description
         des = re.search(r'<meta name="description" content="(.*?)"', html)
-        recipe["description"] = des.group(1) if des else "No description available"
+        recipe.other["description"] = des.group(1) if des else "No description available"
         
         # Extract ingredients and steps
-        recipe["ingredients"] = jsondata.get("recipeIngredient", [])
-        recipe["steps"] = [step["text"] for step in jsondata.get("recipeInstructions", [])]
+        recipe.ingredients = [Ingredient.from_str(ingr) for ingr in jsondata.get("recipeIngredient", [])]
+        recipe.steps = [Step(step["text"]) for step in jsondata.get("recipeInstructions", [])]
         
-        # Identify cooking methods
-        recipe["methods"] = cooking_methods(recipe["steps"])
+        # Identify and update cooking methods
+        update_cooking_methods()
         
         # Identify tools used in the recipe
-        tools_found = set()
-        for step in recipe["steps"]:
+        for step in recipe.steps:
             for tool in COMMON_TOOLS:
-                if re.search(rf"\b{tool}\b", step, re.IGNORECASE):
-                    tools_found.add(tool)
-        recipe["tools"] = list(tools_found)
+                if re.search(rf"\b{tool}\b", step.text, re.IGNORECASE):
+                    step.tools.add(tool)
+                    recipe.tools.add(tool)
         
         return True
     
@@ -105,24 +102,29 @@ def parse_recipe(html):
         print(f"Error decoding JSON: {e}")
         return False
 
-def cooking_methods(steps):
+def update_cooking_methods():
     """
-    Identify cooking methods used in recipe steps using spaCy.
+    Identify cooking methods used in the recipe steps using spaCy and save to
+    the Step objects and the Recipe.
     
     Args:
-        steps (list): List of recipe steps
+        None
     
     Returns:
-        dict: Dictionary of steps and their identified cooking methods
+        None
     """
-    cooking_methods = {}
-    for step in steps:
-        doc = nlp(step)
+    recipe.methods = set()
+    for step in recipe.steps:
+        doc = nlp(step.text)
         verbs = [token.lemma_ for token in doc if token.pos_ == "VERB"]
-        found_methods = [method for method in cooking_methods if method in verbs]
-        if found_methods:
-            cooking_methods[step] = found_methods
-    return cooking_methods
+        for sentence in doc.sents:
+            if sentence[0].pos_ in ['NOUN', 'PROPN']:
+                verbs.append(sentence[0].lemma_.lower())
+        for verb in verbs:
+            if VerbType.from_str(verb) == VerbType.PRIMARY_METHOD:
+                step.methods.add(verb)
+                recipe.methods.add(verb)
+    return None
 
 # Example usage
 def main():
@@ -130,15 +132,19 @@ def main():
     html = fetch_url(url)
     if html and parse_recipe(html):
         print("Recipe parsed successfully!")
-        print(f"Title: {recipe['title']}")
+        print(f"Title: {recipe.title}")
         print("\nIngredients:")
-        for ingredient in recipe['ingredients']:
+        for ingredient in recipe.ingredients:
             print(f"- {ingredient}")
         print("\nSteps:")
-        for i, step in enumerate(recipe['steps'], 1):
-            print(f"{i}. {step}")
+        for i, step in enumerate(recipe.steps, 1):
+            print(f"{i}. {step.text}")
+
+        # The following are metadata that should not be shown to the user
         print("\nTools:")
-        print(", ".join(recipe['tools']))
+        print(recipe.tools)
+        print("\nMethods:")
+        print(recipe.methods)
     else:
         print("Failed to parse recipe.")
 
