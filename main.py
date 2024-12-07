@@ -229,15 +229,17 @@ def display_transformed(transformed: Recipe, transformation: str):
     '''Displays and saves a transformed recipe.'''
     
     transformed.title = ' '.join([transformation, transformed.title])
-    print(transformed, ''.join([transformation, ' ']))
+    print(transformed)
 
     fname = transformed.title.lower().replace(' ', '_')
     with open(f'{fname}.txt', 'w', encoding='utf-8') as file:
         print(f'Transformation: {transformation}', file=file)
+        print('\n---------------------', file=file)
         print(recipe, file=file)
+        print('\n---------------------', file=file)
         print(transformed, file=file)
     
-    print(f'\nRecipe saved to {fname}!')
+    print(f'\nRecipe saved to {fname}.txt!')
 
 
 # Example usage
