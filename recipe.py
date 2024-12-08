@@ -4,14 +4,14 @@ Recipe data representations.
 Modified from code written by Ellen Liao (@ellliao) for Project 2.
 '''
 
-from copy import deepcopy
 from fractions import Fraction
+
 from util import nlp, NounType, str_to_fraction, fraction_to_str
 
 class Ingredient:
     '''Struct holding ingredient information'''
 
-    def __init__(self, name: str | None = None,
+    def __init__(self, name: str = '',
                  quantity: Fraction | None = None,
                  unit: str | None = None):
         self.name = name
@@ -20,16 +20,25 @@ class Ingredient:
         '''Quantity of the ingredient, e.g. 1/2'''
         self.unit = unit
         '''Unit of the ingredient, e.g. tsp'''
+        self.descriptors: str = None
+        '''Descriptions, e.g. extra-virgin'''
+        self.preparation: str = None
+        '''Preparation instructions, e.g. chopped'''
         self.used: list[int] = []
         '''List of steps in which this ingredient is used'''
 
     def __str__(self):
+        # return f"{self.quantity}|{self.unit}|{self.descriptors}|{self.name}|{self.preparation}"
         return ''.join([
             fraction_to_str(self.quantity) if self.quantity else '',
             ' ' if self.quantity else '',
             self.unit if self.unit else '',
             ' ' if self.unit else '',
-            self.name
+            self.descriptors if self.descriptors else '',
+            ' ' if self.descriptors else '',
+            self.name,
+            ', ' if self.preparation else '',
+            self.preparation if self.preparation else ''
         ])
     
     @classmethod
@@ -49,31 +58,76 @@ class Ingredient:
         doc = nlp(name)
 
         # Find quantity, if available
-        i = 0
-        li = 0
-        quantity = []
-        while i < len(doc) and str_to_fraction(doc[i].text) != Fraction():
-            quantity.append(doc[i].text)
-            li += len(doc[i].text) + 1
-            i += 1
-        if quantity:
-            ingr.quantity = str_to_fraction(' '.join(quantity))
-        else:
-            i = 0
+        i = 0  # token index
+        idx = 0  # start char index
+        for ind in range(len(doc)):
+            if str_to_fraction(doc[ind].text) == Fraction():
+                i = ind
+                ingr.quantity = str_to_fraction(name[idx:doc[i].idx].strip())
+                idx = doc[i].idx
+                break
 
         # Find unit, if available
-        if i < len(doc) and \
-            NounType.MEASURE in NounType.from_str(doc[i].text):
-            ingr.unit = doc[i].text
-            li += len(doc[i].text) + 1
-            i += 1
+        parens = 0
+        for ind in range(i, len(doc) - 1):
+            if doc[ind].text == '(':
+                parens += 1
+            elif doc[ind].text == ')':
+                parens -= 1
+            elif parens == 0:
+                if NounType.MEASURE in NounType.from_str(doc[ind].text):
+                    i = ind + 1
+                    ingr.unit = name[idx:doc[i].idx].strip()
+                    idx = doc[i].idx
+                break
         
-        # Find name and return if a food
-        for token in doc[i:]:
-            if NounType.FOOD in NounType.from_str(token.text):
-                ingr.name = name[li:]
-                return ingr
+        # Find descriptors, if available
+        for ind in range(i, len(doc)):
+            if doc[ind].pos_ in ['NOUN', 'PROPN']:
+                i = ind
+                ingr.descriptors = name[idx:doc[i].idx].strip()
+                idx = doc[i].idx
+                break
 
+        # Find name and check if it's a food item
+        is_food = False
+        parens = 0
+        post_punct = False
+        for ind in range(i, len(doc)):
+            if doc[ind].text == '(':
+                parens += 1
+                continue
+            elif doc[ind].text == ')':
+                parens -= 1
+                continue
+            elif parens > 0:
+                continue
+            if (doc[ind].pos_ not in ['NOUN', 'PROPN', 'ADJ'] and \
+                doc[ind].dep_ != 'ROOT' and \
+                doc[ind].text != ',') or \
+                    (post_punct and \
+                     (doc[ind].pos_ not in ['NOUN', 'PROPN', 'ADJ'] or \
+                      doc[ind].head.i < ind)):
+                i = ind
+                ingr.name = name[idx:doc[i].idx].strip(' .,;:!-')
+                idx = doc[i].idx
+                break
+            if doc[ind].text == ',':
+                post_punct = True
+            elif post_punct:
+                post_punct = False
+            if NounType.FOOD in NounType.from_str(doc[ind].text):
+                is_food = True
+            if is_food and ind == len(doc) - 1:
+                i = ind + 1
+                ingr.name = name[idx:].strip(' .,;:!-')
+        
+        # Find preparation, if available
+        if i < len(doc):
+            ingr.preparation = name[idx:].strip(' .,;:!-')
+
+        if is_food:
+            return ingr
         return None
 
 class Step:
