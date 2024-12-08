@@ -1,6 +1,6 @@
 # cs337-project3
 Northwestern University CS 337 Project 3: A recipe transformer.
-
+Lydia Ketema, Ellen Liao, Henry Michaelson, Yao Xiao
 ## Setup
 
 ### Prerequisites

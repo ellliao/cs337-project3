@@ -77,22 +77,64 @@ NON_VEGETARIAN_SUBSTITUTIONS = {
 HEALTHY_SUBSTITUTIONS = {
     "butter": "applesauce",
     "sugar": "honey",
+    "brown sugar": "coconut sugar",
+    "white flour": "almond flour",
     "heavy cream": "Greek yogurt",
+    "milk": "almond milk",
+    "cheese": "nutritional yeast",
     "salt": "herbs",
     "bacon": "turkey bacon",
+    "sausage": "chicken sausage",
+    "ground beef": "ground turkey",
     "beef": "lean turkey",
+    "pork": "chicken breast",
+    "fried": "grilled",
     "frying": "baking",
+    "mayonnaise": "avocado spread",
+    "sour cream": "plain Greek yogurt",
+    "cream cheese": "low-fat cream cheese",
+    "chips": "baked chips",
+    "white rice": "cauliflower rice",
+    "pasta": "zucchini noodles",
+    "potato chips": "kale chips",
+    "oil": "cooking spray",
+    "soda": "sparkling water",
+    "ice cream": "frozen yogurt",
+    "cake": "fruit salad",
+    "cookies": "protein bars",
+    "granulated sugar": "stevia",
+    "milk chocolate": "dark chocolate",
 }
+
 
 UNHEALTHY_SUBSTITUTIONS = {
     "applesauce": "butter",
     "honey": "sugar",
+    "coconut sugar": "brown sugar",
+    "almond flour": "white flour",
     "Greek yogurt": "heavy cream",
+    "almond milk": "whole milk",
+    "nutritional yeast": "cheese",
     "herbs": "salt",
     "turkey bacon": "bacon",
+    "chicken sausage": "pork sausage",
+    "ground turkey": "ground beef",
     "lean turkey": "beef",
+    "chicken breast": "pork",
+    "grilled": "fried",
     "baking": "frying",
+    "avocado spread": "mayonnaise",
+    "Greek yogurt": "sour cream",
+    "low-fat cream cheese": "cream cheese",
+    "baked chips": "regular chips",
+    "cauliflower rice": "white rice",
+    "zucchini noodles": "pasta",
+    "kale chips": "potato chips",
+    "cooking spray": "oil",
+    "stevia": "granulated sugar",
+    "dark chocolate": "milk chocolate",
 }
+
 
 ITALIAN_SUBSTITUTIONS = {
     "rice": "risotto",
@@ -141,8 +183,9 @@ GLUTEN_FREE_SUBSTITUTIONS = {
     "bulgur": "quinoa",
     "couscous": "quinoa",
     "farro": "millet",
-    "barley": "brown rice",
+    "rice": "brown rice",
     "rye": "oats",
+    "tortillas": "gluten-free tortillas",
     "kamut": "teff",
     "bread": "gluten-free bread",
     "bagels": "gluten-free bagels",
@@ -440,6 +483,8 @@ def handle_transformation(recipe: Recipe, trans: Transformation):
     print("\nTransformed Recipe:")
     print(transformed_recipe)
 
+
+    
     fname = re.sub(r"\W", "_", transformed_recipe.title.lower()) + ".txt"
     with open(fname, "w", encoding="utf-8") as file:
         print(f"Transformation: {str(trans)}", file=file)
@@ -450,9 +495,6 @@ def handle_transformation(recipe: Recipe, trans: Transformation):
 
     print(f"\nRecipe saved to {fname}!")
 
-# https://www.allrecipes.com/recipe/12728/paella-i/
-# https://www.allrecipes.com/recipe/72508/the-best-vegetarian-chili-in-the-world/
-# https://www.allrecipes.com/recipe/16729/old-fashioned-potato-salad/
 
 
 # Example usage
