@@ -1,4 +1,5 @@
 from copy import copy
+from copy import deepcopy
 import urllib.request
 import re
 import json
@@ -66,7 +67,6 @@ NON_VEGETARIAN_SUBSTITUTIONS = {
     "zucchini slices": "fish",
     "agar": "gelatin",
     "tempeh": "bacon",
-    "beans": "meatballs",
     "chickpeas": "shrimp",
     "plant-based": "",
     "vegetarian": "",
@@ -92,6 +92,44 @@ UNHEALTHY_SUBSTITUTIONS = {
     "turkey bacon": "bacon",
     "lean turkey": "beef",
     "baking": "frying",
+}
+
+ITALIAN_SUBSTITUTIONS = {
+    "rice": "risotto",
+    "bread": "ciabatta",
+    "tomatoes": "San Marzano tomatoes",
+    "onions": "shallots",
+    "vegetable oil": "olive oil",
+    "chicken": "prosciutto",
+    "ground beef": "Italian sausage",
+    "cheddar cheese": "parmesan cheese",
+    "cream": "mascarpone cheese",
+    "butter": "extra virgin olive oil",
+    "corn": "zucchini",
+    "herbs": "basil",
+    "potatoes": "polenta",
+    "spices": "Italian seasoning",
+    "stock": "chicken stock with white wine",
+    "pasta": "spaghetti",
+}
+
+MEXICAN_SUBSTITUTIONS = {
+    "rice": "Mexican rice",
+    "bread": "corn tortillas",
+    "tomatoes": "fire-roasted tomatoes",
+    "onions": "white onions",
+    "vegetable oil": "lard",
+    "chicken": "shredded chicken",
+    "ground beef": "chorizo",
+    "cheddar cheese": "queso fresco",
+    "cream": "crema",
+    "butter": "avocado oil",
+    "zucchini": "corn",
+    "herbs": "cilantro",
+    "potatoes": "sweet potatoes",
+    "spices": "chili powder and cumin",
+    "stock": "chicken stock with lime",
+    "pasta": "tortilla strips",
 }
 
 
@@ -261,134 +299,212 @@ def update_methods_and_ingredients():
                 step.ingredients.append(ingr)
 
     return None
+def get_substitutions(trans: Transformation) -> dict[str, str]:
+    """Returns the substitution dictionary based on the transformation type."""
+    match trans:
+        case Transformation.TO_VEGETARIAN:
+            return VEGETARIAN_SUBSTITUTIONS
+        case Transformation.FROM_VEGETARIAN:
+            return NON_VEGETARIAN_SUBSTITUTIONS
+        case Transformation.TO_HEALTHY:
+            return HEALTHY_SUBSTITUTIONS
+        case Transformation.FROM_HEALTHY:
+            return UNHEALTHY_SUBSTITUTIONS
+        case Transformation.TO_ITALIAN:
+            return ITALIAN_SUBSTITUTIONS
+        case Transformation.TO_MEXICAN:
+            return MEXICAN_SUBSTITUTIONS
+        case _:
+            return {}
+
+# def handle_transformation(recipe: Recipe, trans: Transformation):
+#     """Performs a transformation on a recipe, displays it, and saves it."""
+#     sorted_substitutions = {}
+
+#     def quantity_change(ingredients, factor):
+#         for ingredient in ingredients:
+#             if ingredient is not None and ingredient.quantity:
+#                 if isinstance(factor, float):
+#                     factor = Fraction(factor).limit_denominator()
+#                 ingredient.quantity *= factor
+
+#     def get_substitutions(trans: Transformation) -> dict[str, str]:
+#         match trans:
+#             case Transformation.TO_VEGETARIAN:
+#                 return VEGETARIAN_SUBSTITUTIONS
+#             case Transformation.FROM_VEGETARIAN:
+#                 return NON_VEGETARIAN_SUBSTITUTIONS
+#             case Transformation.TO_HEALTHY:
+#                 return HEALTHY_SUBSTITUTIONS
+#             case Transformation.FROM_UNHEALTHY:
+#                 return UNHEALTHY_SUBSTITUTIONS
+
+#     if trans not in [Transformation.DOUBLE, Transformation.HALF]:
+#         substitutions = get_substitutions(trans)
+#         sorted_substitutions.update(
+#             dict(sorted(substitutions.items(), key=lambda x: len(x[0]), reverse=True))
+#         )
+
+#     if trans in [Transformation.DOUBLE, Transformation.HALF]:
+#         if trans == Transformation.DOUBLE:
+#             quantity_change(recipe.ingredients, 2)
+#         elif trans == Transformation.HALF:
+#             quantity_change(recipe.ingredients, 0.5)
+
+#     def clean_verbs(text):
+#         verbs = r"\b(deveined|debearded|disjointed|skinned|boned|trimmed)\b"
+#         return re.sub(verbs, "", text, flags=re.IGNORECASE).strip()
+
+#     def clean_trailing_and(text):
+#         return re.sub(r"\b(and|,)\s*$", "", text, flags=re.IGNORECASE).strip()
+
+#     def substitute_text(text):
+#         new_text = text
+#         for original, substitute in sorted_substitutions.items():
+#             pattern = rf"\b{re.escape(original)}\b"
+#             if re.search(pattern, new_text, flags=re.IGNORECASE):
+#                 new_text = re.sub(pattern, substitute, new_text, flags=re.IGNORECASE)
+#                 new_text = clean_verbs(new_text)
+#         new_text = clean_trailing_and(new_text)
+#         new_text = re.sub(r"\s+", " ", new_text).strip()
+#         return new_text
+
+#     def display_transformed(transformed: Recipe, trans: Transformation):
+#         """Displays and saves a transformed recipe."""
+
+#         transformed.title = " ".join([str(trans), transformed.title])
+#         print(transformed)
+
+#         fname = re.sub(r"\W", "_", transformed.title.lower())
+#         with open(f"{fname}.txt", "w", encoding="utf-8") as file:
+#             print(f"Transformation: {trans}", file=file)
+#             print("\n---------------------", file=file)
+#             print(recipe, file=file)
+#             print("\n---------------------", file=file)
+#             print(transformed, file=file)
+
+#         print(f"\nRecipe saved to {fname}.txt!")
+
+#     transformed_ingredients = []
+#     for ingredient in recipe.ingredients:
+#         if ingredient and ingredient.name:
+#             transformed_ingredient = copy(ingredient)
+#             transformed_ingredient.name = substitute_text(ingredient.name)
+#             transformed_ingredients.append(transformed_ingredient)
+
+#     transformed_steps = []
+#     for step in recipe.steps:
+#         transformed_step = copy(step)
+#         transformed_step.text = substitute_text(step.text)
+#         transformed_steps.append(transformed_step)
+
+#     transformed_recipe = copy(recipe)
+#     transformed_recipe.ingredients = transformed_ingredients
+#     transformed_recipe.steps = transformed_steps
+
+#     return transformed_recipe
+
+    
+# def handle_transformation(recipe: Recipe, trans: Transformation):
+#     '''Performs a transformation on a recipe, displays it, and saves it.'''
+
+#     def get_substitutions(trans: Transformation) -> dict[str, str]:
+#         match trans:
+#             case Transformation.TO_VEGETARIAN:
+#                 return VEGETARIAN_SUBSTITUTIONS
+#             case Transformation.FROM_VEGETARIAN:
+#                 return NON_VEGETARIAN_SUBSTITUTIONS
+
+#     def display_transformed(transformed: Recipe, trans: Transformation):
+#         '''Displays and saves a transformed recipe.'''
+        
+#         transformed.title = ' '.join([str(trans), transformed.title])
+#         print(transformed)
+
+#         fname = re.sub(r'\W', '_', transformed.title.lower())
+#         with open(f'{fname}.txt', 'w', encoding='utf-8') as file:
+#             print(f'Transformation: {trans}', file=file)
+#             print('\n---------------------', file=file)
+#             print(recipe, file=file)
+#             print('\n---------------------', file=file)
+#             print(transformed, file=file)
+        
+#         print(f'\nRecipe saved to {fname}.txt!')
+
+#     substitutions = get_substitutions(trans)
+#     if substitutions:
+#         sorted_substitutions = dict(sorted(substitutions.items(),
+#                                            key=lambda x: len(x[0]),
+#                                            reverse=True))
+#         transformed_recipe = apply_substitutions(recipe, sorted_substitutions)
+
+#     display_transformed(transformed_recipe, trans)
 
 
 def handle_transformation(recipe: Recipe, trans: Transformation):
     """Performs a transformation on a recipe, displays it, and saves it."""
-    sorted_substitutions = {}
 
     def quantity_change(ingredients, factor):
         for ingredient in ingredients:
-            if ingredient is not None and ingredient.quantity:
+            if ingredient and ingredient.quantity:
                 if isinstance(factor, float):
                     factor = Fraction(factor).limit_denominator()
                 ingredient.quantity *= factor
 
-    def get_substitutions(trans: Transformation) -> dict[str, str]:
-        match trans:
-            case Transformation.TO_VEGETARIAN:
-                return VEGETARIAN_SUBSTITUTIONS
-            case Transformation.FROM_VEGETARIAN:
-                return NON_VEGETARIAN_SUBSTITUTIONS
-            case Transformation.TO_HEALTHY:
-                return HEALTHY_SUBSTITUTIONS
-            case Transformation.FROM_UNHEALTHY:
-                return UNHEALTHY_SUBSTITUTIONS
-
-    if trans not in [Transformation.DOUBLE, Transformation.HALF]:
-        substitutions = get_substitutions(trans)
-        sorted_substitutions.update(
-            dict(sorted(substitutions.items(), key=lambda x: len(x[0]), reverse=True))
-        )
-
     if trans in [Transformation.DOUBLE, Transformation.HALF]:
-        if trans == Transformation.DOUBLE:
-            quantity_change(recipe.ingredients, 2)
-        elif trans == Transformation.HALF:
-            quantity_change(recipe.ingredients, 0.5)
+        factor = 2 if trans == Transformation.DOUBLE else 0.5
+        transformed_ingredients = deepcopy(recipe.ingredients)
+        quantity_change(transformed_ingredients, factor)
 
-    def clean_verbs(text):
-        verbs = r"\b(deveined|debearded|disjointed|skinned|boned|trimmed)\b"
-        return re.sub(verbs, "", text, flags=re.IGNORECASE).strip()
+        transformed_steps = deepcopy(recipe.steps)
+    else:
+        substitutions = get_substitutions(trans)
+        sorted_substitutions = dict(sorted(substitutions.items(), key=lambda x: len(x[0]), reverse=True))
 
-    def clean_trailing_and(text):
-        return re.sub(r"\b(and|,)\s*$", "", text, flags=re.IGNORECASE).strip()
-
-    def substitute_text(text):
-        new_text = text
-        for original, substitute in sorted_substitutions.items():
-            pattern = rf"\b{re.escape(original)}\b"
-            if re.search(pattern, new_text, flags=re.IGNORECASE):
+        def substitute_text(text):
+            new_text = text
+            for original, substitute in sorted_substitutions.items():
+                pattern = rf"\b{re.escape(original)}\b"
                 new_text = re.sub(pattern, substitute, new_text, flags=re.IGNORECASE)
-                new_text = clean_verbs(new_text)
-        new_text = clean_trailing_and(new_text)
-        new_text = re.sub(r"\s+", " ", new_text).strip()
-        return new_text
+            return new_text
 
-    def display_transformed(transformed: Recipe, trans: Transformation):
-        """Displays and saves a transformed recipe."""
+        transformed_ingredients = []
+        for ingredient in recipe.ingredients:
+            if ingredient and ingredient.name:
+                transformed_ingredient = deepcopy(ingredient)
+                transformed_ingredient.name = substitute_text(ingredient.name)
+                transformed_ingredients.append(transformed_ingredient)
 
-        transformed.title = " ".join([str(trans), transformed.title])
-        print(transformed)
+        transformed_steps = []
+        for step in recipe.steps:
+            transformed_step = deepcopy(step)
+            transformed_step.text = substitute_text(step.text)
+            transformed_steps.append(transformed_step)
 
-        fname = re.sub(r"\W", "_", transformed.title.lower())
-        with open(f"{fname}.txt", "w", encoding="utf-8") as file:
-            print(f"Transformation: {trans}", file=file)
-            print("\n---------------------", file=file)
-            print(recipe, file=file)
-            print("\n---------------------", file=file)
-            print(transformed, file=file)
-
-        print(f"\nRecipe saved to {fname}.txt!")
-
-    transformed_ingredients = []
-    for ingredient in recipe.ingredients:
-        if ingredient and ingredient.name:
-            transformed_ingredient = copy(ingredient)
-            transformed_ingredient.name = substitute_text(ingredient.name)
-            transformed_ingredients.append(transformed_ingredient)
-
-    transformed_steps = []
-    for step in recipe.steps:
-        transformed_step = copy(step)
-        transformed_step.text = substitute_text(step.text)
-        transformed_steps.append(transformed_step)
-
-    transformed_recipe = copy(recipe)
+    transformed_recipe = Recipe()
+    transformed_recipe.title = f"{trans.name.capitalize()} {recipe.title}"
     transformed_recipe.ingredients = transformed_ingredients
     transformed_recipe.steps = transformed_steps
+    transformed_recipe.tools = recipe.tools
+    transformed_recipe.methods = recipe.methods
+    transformed_recipe.other = recipe.other
 
-    return transformed_recipe
+    print("\nTransformed Recipe:")
+    print(transformed_recipe)
 
-    
-def handle_transformation(recipe: Recipe, trans: Transformation):
-    '''Performs a transformation on a recipe, displays it, and saves it.'''
+    fname = re.sub(r"\W", "_", transformed_recipe.title.lower()) + ".txt"
+    with open(fname, "w", encoding="utf-8") as file:
+        print(f"Transformation: {trans.name.capitalize()}", file=file)
+        print("\n---------------------", file=file)
+        print(recipe, file=file)
+        print("\n---------------------", file=file)
+        print(transformed_recipe, file=file)
 
-    def get_substitutions(trans: Transformation) -> dict[str, str]:
-        match trans:
-            case Transformation.TO_VEGETARIAN:
-                return VEGETARIAN_SUBSTITUTIONS
-            case Transformation.FROM_VEGETARIAN:
-                return NON_VEGETARIAN_SUBSTITUTIONS
-
-    def display_transformed(transformed: Recipe, trans: Transformation):
-        '''Displays and saves a transformed recipe.'''
-        
-        transformed.title = ' '.join([str(trans), transformed.title])
-        print(transformed)
-
-        fname = re.sub(r'\W', '_', transformed.title.lower())
-        with open(f'{fname}.txt', 'w', encoding='utf-8') as file:
-            print(f'Transformation: {trans}', file=file)
-            print('\n---------------------', file=file)
-            print(recipe, file=file)
-            print('\n---------------------', file=file)
-            print(transformed, file=file)
-        
-        print(f'\nRecipe saved to {fname}.txt!')
-
-    substitutions = get_substitutions(trans)
-    if substitutions:
-        sorted_substitutions = dict(sorted(substitutions.items(),
-                                           key=lambda x: len(x[0]),
-                                           reverse=True))
-        transformed_recipe = apply_substitutions(recipe, sorted_substitutions)
-
-    display_transformed(transformed_recipe, trans)
-
+    print(f"\nRecipe saved to {fname}!")
 
 # https://www.allrecipes.com/recipe/12728/paella-i/
 # https://www.allrecipes.com/recipe/72508/the-best-vegetarian-chili-in-the-world/
+# https://www.allrecipes.com/recipe/16729/old-fashioned-potato-salad/
 
 
 # Example usage

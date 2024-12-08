@@ -122,6 +122,8 @@ class Transformation(Enum):
     FROM_HEALTHY = auto()
     DOUBLE = auto()
     HALF = auto()
+    TO_ITALIAN = auto() 
+    TO_MEXICAN = auto()
 
     def __str__(self):
         match self:
@@ -137,6 +139,10 @@ class Transformation(Enum):
                 return "Double"
             case Transformation.HALF:
                 return "Half"
+            case Transformation.TO_ITALIAN:
+                return "Italian Style"
+            case Transformation.TO_MEXICAN:
+                return "Mexican Style"
         return None
 
 
