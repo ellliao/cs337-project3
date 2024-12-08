@@ -43,25 +43,15 @@ Once the recipe is successfully parsed and extracted, it will be displayed, alon
 The following commands are supported by the transformer. When prompted, enter the number associated with the command to choose it.
 
 1. **Transform to Vegetarian** creates a vegetarian version of the recipe.
-
 2. **Transform to Non-Vegetarian** creates a non-vegetarian version of the recipe.
-
 3. **Transform to Healthy** creates a healthier version of the recipe.
-
 4. **Transform to Unhealthy** creates an unhealthier version of the recipe.
-
 5. **Transform to Double** doubles the quantity of the recipe.
-
 6. **Transform to Half** halves the quantity of the recipe.
-
 7. **Transform to Italian Style** creates an Italian-inspired version of the recipe.
-
 8. **Transform to Mexican Style** creates a Mexican-inspired version of the recipe.
-
 9. **Transform to Gluten Free** creates a gluten-free version of the recipe.
-
 10. **Transform to Lactose Free** creates a lactose-free version of the recipe.
-
 11. **Exit** closes the transformer.
 
 ## Output Files
