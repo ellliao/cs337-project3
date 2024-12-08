@@ -126,8 +126,8 @@ def parse_recipe(html):
         recipe.ingredients = [Ingredient.from_str(ingr) for ingr in jsondata.get("recipeIngredient", [])]
         recipe.steps = [Step(step["text"]) for step in jsondata.get("recipeInstructions", [])]
         
-        # Identify and update cooking methods
-        update_cooking_methods()
+        # Identify and update cooking methods and step ingredients
+        update_methods_and_ingredients()
         
         # Identify tools used in the recipe
         for step in recipe.steps:
@@ -142,10 +142,10 @@ def parse_recipe(html):
         print(f"Error decoding JSON: {e}")
         return False
 
-def update_cooking_methods():
+def update_methods_and_ingredients():
     """
-    Identify cooking methods used in the recipe steps using spaCy and save to
-    the Step objects and the Recipe.
+    Identify methods and ingredients used in the recipe steps using spaCy and
+    save to the Step objects and the Recipe.
     
     Args:
         None
@@ -153,8 +153,53 @@ def update_cooking_methods():
     Returns:
         None
     """
+
+    def match_score(name1: str, name2: str):
+        '''Returns a score of how similar two strings are to each other.'''
+
+        if not name1 or not name2:
+            return 0
+        
+        words1 = name1.lower().split()
+        words2 = name2.lower().split()
+        if name1 == name2:
+            return 2
+        elif name1 in name2 or name2 in name1:
+            return 1
+        else:
+            score = 0
+            for wd in words1:
+                if wd in words2:
+                    score += 1
+            return score / (max(len(words1), len(words2)) + 1)
+
+    def find_ingredient(ingr: Ingredient):
+        '''
+        Returns the index of the recipe ingredient corresponding to the given
+        ingredient, if it exists.
+        '''
+
+        if not ingr:
+            return -1
+        
+        max_score = 1/2
+        ingredients = []
+        for i, ringr in enumerate(recipe.ingredients):
+            if not ringr:
+                continue
+            score = match_score(' '.join([ingr.descriptors, ingr.name]),
+                                ' '.join([ringr.descriptors, ringr.name]))
+            if score > max_score:
+                ingredients = [i]
+            elif score == max_score:
+                ingredients.append(i)
+
+        if ingredients:
+            return ingredients[0]
+        return -1
+
     recipe.methods = set()
-    for step in recipe.steps:
+    for i, step in enumerate(recipe.steps):
         doc = nlp(step.text)
         verbs = [token.lemma_ for token in doc if token.pos_ == "VERB"]
         for sentence in doc.sents:
@@ -164,6 +209,16 @@ def update_cooking_methods():
             if VerbType.from_str(verb) == VerbType.PRIMARY_METHOD:
                 step.methods.add(verb)
                 recipe.methods.add(verb)
+        for chunk in doc.noun_chunks:
+            text = re.sub(r'\A(?:a|an|the)\b\s*', '', chunk.text,
+                          flags=re.IGNORECASE)
+            ingr = Ingredient.from_str(text)
+            ingr_ind = find_ingredient(ingr)
+            if ingr_ind > -1:
+                recipe.ingredients[ingr_ind].used.add((i,
+                                                       len(step.ingredients)))
+                step.ingredients.append(ingr)
+
     return None
 
     

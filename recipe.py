@@ -20,12 +20,12 @@ class Ingredient:
         '''Quantity of the ingredient, e.g. 1/2'''
         self.unit = unit
         '''Unit of the ingredient, e.g. tsp'''
-        self.descriptors: str = None
+        self.descriptors: str = ''
         '''Descriptions, e.g. extra-virgin'''
-        self.preparation: str = None
+        self.preparation: str = ''
         '''Preparation instructions, e.g. chopped'''
-        self.used: list[int] = []
-        '''List of steps in which this ingredient is used'''
+        self.used: set[tuple[int, int]] = set()
+        '''Set of (step, step.ingr) indices where this ingredient is used'''
 
     def __str__(self):
         # return f"{self.quantity}|{self.unit}|{self.descriptors}|{self.name}|{self.preparation}"
@@ -126,6 +126,7 @@ class Ingredient:
         if i < len(doc):
             ingr.preparation = name[idx:].strip(' .,;:!-')
 
+        # return ingr
         if is_food:
             return ingr
         return None
