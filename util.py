@@ -124,6 +124,7 @@ class Transformation(Enum):
     HALF = auto()
     TO_ITALIAN = auto() 
     TO_MEXICAN = auto()
+    GLUTEN_FREE = auto()
 
     def __str__(self):
         match self:
@@ -143,6 +144,8 @@ class Transformation(Enum):
                 return "Italian Style"
             case Transformation.TO_MEXICAN:
                 return "Mexican Style"
+            case Transformation.GLUTEN_FREE:
+                return "Gluten Free"
         return None
 
 

@@ -132,6 +132,43 @@ MEXICAN_SUBSTITUTIONS = {
     "pasta": "tortilla strips",
 }
 
+GLUTEN_FREE_SUBSTITUTIONS = {
+    "flour": "gluten-free flour",
+    "whole wheat flour": "almond flour",
+    "all-purpose flour": "coconut flour",
+    "semolina": "cornmeal",
+    "spelt": "sorghum flour",
+    "bulgur": "quinoa",
+    "couscous": "quinoa",
+    "farro": "millet",
+    "barley": "brown rice",
+    "rye": "oats",
+    "kamut": "teff",
+    "bread": "gluten-free bread",
+    "bagels": "gluten-free bagels",
+    "crackers": "rice crackers",
+    "croissants": "gluten-free croissants",
+    "pizza crust": "cauliflower crust",
+    "muffins": "gluten-free muffins",
+    "pancakes": "gluten-free pancakes",
+    "waffles": "gluten-free waffles",
+    "pasta": "gluten-free pasta",
+    "spaghetti": "rice noodles",
+    "lasagna sheets": "zucchini slices",
+    "beer": "gluten-free beer",
+    "ale": "cider",
+    "breadcrumbs": "gluten-free breadcrumbs",
+    "croutons": "gluten-free croutons",
+    "graham crackers": "gluten-free graham crackers",
+    "cookies": "gluten-free cookies",
+    "cakes": "gluten-free cakes",
+    "donuts": "gluten-free donuts",
+    "cereal": "gluten-free cereal",
+    "granola": "gluten-free granola",
+    "oatmeal": "certified gluten-free oats"
+}
+
+
 
 def fetch_url(url):
     """
@@ -314,6 +351,8 @@ def get_substitutions(trans: Transformation) -> dict[str, str]:
             return ITALIAN_SUBSTITUTIONS
         case Transformation.TO_MEXICAN:
             return MEXICAN_SUBSTITUTIONS
+        case Transformation.GLUTEN_FREE:
+            return GLUTEN_FREE_SUBSTITUTIONS
         case _:
             return {}
 
