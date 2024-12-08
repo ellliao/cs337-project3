@@ -24,8 +24,8 @@ class Ingredient:
         '''Descriptions, e.g. extra-virgin'''
         self.preparation: str = ''
         '''Preparation instructions, e.g. chopped'''
-        self.used: set[tuple[int, int]] = set()
-        '''Set of (step, step.ingr) indices where this ingredient is used'''
+        self.used: list[tuple[int, int]] = []
+        '''List of (step, step.ingr) indices where this ingredient is used'''
 
     def __str__(self):
         # return f"{self.quantity}|{self.unit}|{self.descriptors}|{self.name}|{self.preparation}"

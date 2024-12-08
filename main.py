@@ -215,8 +215,8 @@ def update_methods_and_ingredients():
             ingr = Ingredient.from_str(text)
             ingr_ind = find_ingredient(ingr)
             if ingr_ind > -1:
-                recipe.ingredients[ingr_ind].used.add((i,
-                                                       len(step.ingredients)))
+                recipe.ingredients[ingr_ind].used.append(
+                    (i, len(step.ingredients)))
                 step.ingredients.append(ingr)
 
     return None
