@@ -73,20 +73,17 @@ class NounType(Enum):
                     or wn.synset("container.n.01") in ss
                 ):
                     ntypes.add(NounType.TOOL)
-                if (
-                    wn.synset("measure.n.02") in ss
-                    or wn.synset("container.n.01") in ss
-                    or wn.synset("clove.n.03") in ss
-                    or wn.synset("branchlet.n.01") in ss
-                    or wn.synset("stalk.n.02") in ss
-                ):
+                if wn.synset('measure.n.02') in ss or \
+                    wn.synset('container.n.01') in ss or \
+                    wn.synset('clove.n.03') in ss or \
+                    wn.synset('branchlet.n.01') in ss or \
+                    noun in ['stalk', 'stick']:
                     ntypes.add(NounType.MEASURE)
-                if (
-                    wn.synset("food.n.01") in ss
-                    or wn.synset("food.n.02") in ss
-                    or wn.synset("leaven.n.01") in ss
-                    or wn.synset("plant_organ.n.01") in ss
-                ):
+                if wn.synset('food.n.01') in ss or \
+                    wn.synset('food.n.02') in ss or \
+                    wn.synset('leaven.n.01') in ss or \
+                    wn.synset('plant_organ.n.01') in ss or \
+                    wn.synset('powder.n.01') in ss:
                     ntypes.add(NounType.FOOD)
                 if (
                     wn.synset("temperature.n.01") in ss

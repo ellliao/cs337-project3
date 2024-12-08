@@ -4,8 +4,8 @@
 # Pycache files
 __pycache__/*
 
-# TXT files
-*.txt
+# Recipe TXT files
+*_recipe.txt
 
 # Virtual environment files
 .venv/*
