@@ -168,6 +168,35 @@ GLUTEN_FREE_SUBSTITUTIONS = {
     "oatmeal": "certified gluten-free oats"
 }
 
+LACTOSE_FREE_SUBSTITUTIONS = {
+    "milk": "almond milk",
+    "whole milk": "coconut milk (canned or carton, depending on richness needed)",
+    "skim milk": "rice milk",
+    "buttermilk": "almond milk",
+    "cream": "coconut cream",
+    "whipping cream": "silken tofu blended with almond milk",
+    "half-and-half": "oat milk creamer",
+    "sour cream": "dairy-free sour cream",
+    "yogurt": "coconut yogurt or almond yogurt",
+    "butter": "vegan butter",
+    "ghee": "lactose-free ghee or clarified butter",
+    "cheese": "dairy-free cheese",
+    "cream cheese": "dairy-free cream cheese",
+    "cheddar cheese": "vegan cheddar cheese",
+    "parmesan cheese": "nutritional yeast or vegan parmesan",
+    "mozzarella cheese": "plant-based mozzarella cheese",
+    "ricotta cheese": "tofu ricotta or cashew ricotta",
+    "feta cheese": "crumbled tofu with lemon and herbs",
+    "blue cheese": "vegan blue cheese or omit for a simpler flavor",
+    "ice cream": "dairy-free ice cream",
+    "whipped cream": "coconut whipped cream",
+    "custard": "coconut milk custard",
+    "pudding": "avocado or silken tofu-based pudding",
+    "chocolate": "dairy-free dark chocolate",
+    "milkshake": "smoothie with dairy-free milk",
+    "coffee creamer": "almond creamer"
+}
+
 
 
 def fetch_url(url):
@@ -354,6 +383,8 @@ def get_substitutions(trans: Transformation) -> dict[str, str]:
             return MEXICAN_SUBSTITUTIONS
         case Transformation.GLUTEN_FREE:
             return GLUTEN_FREE_SUBSTITUTIONS
+        case Transformation.LACTOSE_FREE:
+            return LACTOSE_FREE_SUBSTITUTIONS
         case _:
             return {}
 

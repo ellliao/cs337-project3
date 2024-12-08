@@ -125,6 +125,7 @@ class Transformation(Enum):
     TO_ITALIAN = auto() 
     TO_MEXICAN = auto()
     GLUTEN_FREE = auto()
+    LACTOSE_FREE = auto()
 
     def __str__(self):
         match self:
@@ -146,6 +147,8 @@ class Transformation(Enum):
                 return "Mexican Style"
             case Transformation.GLUTEN_FREE:
                 return "Gluten Free"
+            case Transformation.LACTOSE_FREE:
+                return "Lactose Free"
         return None
 
 
