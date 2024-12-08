@@ -261,6 +261,8 @@ def apply_substitutions(recipe: Recipe, subs: dict[str, str]):
     transformed_recipe.ingredients = transformed_ingredients
     transformed_recipe.steps = transformed_steps
 
+    return transformed_recipe
+
     
 def handle_transformation(recipe: Recipe, trans: Transformation):
     '''Performs a transformation on a recipe, displays it, and saves it.'''
