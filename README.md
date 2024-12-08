@@ -1,5 +1,5 @@
 # cs337-project3
-CS 337 Project 3: A recipe transformer.
+Northwestern University CS 337 Project 3: A recipe transformer.
 
 ## Setup
 
@@ -59,7 +59,7 @@ The following commands are supported by the transformer. When prompted, enter th
 After applying the appropriate transformation, the transformer will print the transformed recipe along with a line that reads:
 
 ```
-Recipe saved to [filename].txt!
+Recipe saved to [filename]!
 ```
 
 where `filename` is of the format `[transformation]_[recipe].txt`.
